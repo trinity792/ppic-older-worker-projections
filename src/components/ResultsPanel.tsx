@@ -18,9 +18,11 @@ export default function ResultsPanel({ series, resultsView, onChangeView, onDown
 
   return (
     <section className="section-card chart-container" aria-labelledby="results-heading">
-      <h2 id="results-heading" className="chart-container-title">
-        <span>Historical data and projections</span>
-      </h2>
+      <header className="chart-publication-header">
+        <h2 id="results-heading" className="chart-container-title">
+          Historical data and projections
+        </h2>
+      </header>
 
       <span className="sr-only" role="status" aria-live="polite">
         {summary}
@@ -30,7 +32,16 @@ export default function ResultsPanel({ series, resultsView, onChangeView, onDown
         {resultsView === "chart" ? <ProjectionLineChart series={series} /> : <ResultsTable series={series} />}
       </div>
 
-      <p className="chart-notes">Comparisons are hidden when total population falls below 20,000 in any represented year.</p>
+      <div className="chart-source-notes">
+        <p>
+          <strong>Source:</strong> PPIC projections for <cite>Older Workers in California: Projections to 2040</cite>.
+        </p>
+        <p>
+          <strong>Notes:</strong> Solid lines show historical data; dashed lines show projections. Dotted segments mark
+          interpolated 2020 poverty values. Comparisons are hidden when total population falls below 20,000 in any
+          represented year. Exact values and populations are available in the Data view.
+        </p>
+      </div>
 
       <div className="chart-container-footer">
         <ViewToggle resultsView={resultsView} onChange={onChangeView} />

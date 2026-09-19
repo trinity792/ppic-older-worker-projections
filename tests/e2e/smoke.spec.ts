@@ -8,6 +8,24 @@ test("renders the default comparison, figure, and table with no horizontal overf
 
   await expect(page.getByRole("img", { name: /Line chart comparing/ })).toBeVisible();
 
+  const seriesStroke = await page.locator(".series-line").first().evaluate((element) => getComputedStyle(element).stroke);
+  expect(seriesStroke).toBe("rgb(202, 79, 26)");
+  const comparisonSwatch = await page
+    .locator(".comparison-color-swatch")
+    .first()
+    .evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(comparisonSwatch).toBe(seriesStroke);
+
+  await page.locator(".chart-canvas circle").last().hover();
+  const tooltipBox = await page.getByRole("tooltip").boundingBox();
+  const chartBox = await page.locator(".chart-canvas").boundingBox();
+  expect(tooltipBox).not.toBeNull();
+  expect(chartBox).not.toBeNull();
+  expect(tooltipBox!.x).toBeGreaterThanOrEqual(chartBox!.x);
+  expect(tooltipBox!.x + tooltipBox!.width).toBeLessThanOrEqual(chartBox!.x + chartBox!.width);
+  expect(tooltipBox!.y).toBeGreaterThanOrEqual(chartBox!.y);
+  expect(tooltipBox!.y + tooltipBox!.height).toBeLessThanOrEqual(chartBox!.y + chartBox!.height);
+
   const hasHorizontalOverflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
   );
@@ -20,7 +38,7 @@ test("switches between the figure and the data table", async ({ page }) => {
 
   await page.getByRole("button", { name: "Data" }).click();
   await expect(page.getByRole("table")).toBeVisible();
-  await expect(page.getByRole("cell", { name: "2006" })).toBeVisible();
+  await expect(page.getByRole("rowheader", { name: "2006" })).toBeVisible();
 
   await page.getByRole("button", { name: "Figure" }).click();
   await expect(page.getByRole("table")).toHaveCount(0);
@@ -31,8 +49,8 @@ test("downloads a CSV that matches the visible table for the default comparison"
   await page.getByRole("button", { name: "Data" }).click();
 
   const firstRow = page.locator("tbody tr").first();
-  const yearCellText = (await firstRow.locator("td").first().textContent())?.trim();
-  const actualCellText = (await firstRow.locator("td").nth(1).textContent()) ?? "";
+  const yearCellText = (await firstRow.getByRole("rowheader").textContent())?.trim();
+  const actualCellText = (await firstRow.locator("td").first().textContent()) ?? "";
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),
@@ -71,4 +89,8 @@ test("supports adding a comparison with the keyboard and moves focus to it", asy
 
   await expect(page.getByRole("heading", { name: "Comparison 2" })).toBeFocused();
   await expect(page.getByRole("button", { name: "Remove comparison 1" })).toBeVisible();
+  const swatchColors = await page.locator(".comparison-color-swatch").evaluateAll((elements) =>
+    elements.map((element) => getComputedStyle(element).backgroundColor),
+  );
+  expect(swatchColors).toEqual(["rgb(202, 79, 26)", "rgb(41, 59, 84)"]);
 });

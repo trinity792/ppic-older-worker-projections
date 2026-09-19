@@ -59,7 +59,7 @@ export default function ResultsTable({ series }: ResultsTableProps) {
           )}
           {years.map((year) => (
             <tr key={year}>
-              <td>{year}</td>
+              <th scope="row">{year}</th>
               {visible.map((entry) => {
                 const actual = describePoint(
                   entry.actual.find((point) => point.year === year),

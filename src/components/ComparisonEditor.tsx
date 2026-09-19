@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 import ComparisonCard from "./ComparisonCard";
 import type { ComparisonsAction } from "../app/comparisonsReducer";
+import { getComparisonColor } from "../app/seriesColors";
 import type { ComparisonSelection, ValueFormat } from "../app/types";
 
 const POVERTY_OUTCOME_KEYS = new Set(["cpmU100", "cpmU150"]);
@@ -78,6 +79,7 @@ export default function ComparisonEditor({ comparisons, availableOutcomeKeys, va
           comparison={comparison}
           availableOutcomeKeys={availableOutcomeKeys}
           valueFormat={valueFormat}
+          color={getComparisonColor(comparisons.length, index)}
           canRemove={comparisons.length > 1}
           ref={(node) => {
             if (node) {

@@ -28,6 +28,9 @@ export function exportDisplayedData({ series }: ExportDisplayedDataInput): strin
   const years = [
     ...new Set(visible.flatMap((entry) => [...entry.actual, ...entry.projected].map((point) => point.year))),
   ].sort((left, right) => left - right);
+  if (years.length === 0) {
+    return "";
+  }
 
   const header = ["year"];
   visible.forEach((_, index) => {

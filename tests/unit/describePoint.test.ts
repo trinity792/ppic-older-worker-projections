@@ -61,6 +61,6 @@ describe("describePoint", () => {
   it("never exposes a numeric value for a suppressed point", () => {
     const description = describePoint(point({ totalPopulation: 15000, status: "suppressed", displayedValue: null }), "percent");
     expect(description.primaryText).toBe("Suppressed");
-    expect(description.populationText).toBe("Total population: 15,000");
+    expect(description.populationText).toBeNull();
   });
 });

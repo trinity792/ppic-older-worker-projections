@@ -73,6 +73,44 @@ describe("parseProjectionCsv", () => {
     expect(result.diagnostics).toEqual({ totalRecordCount: 3, skippedRowCount: 2 });
   });
 
+  it("skips rows with blank required numbers or invalid category booleans", () => {
+    const result = parseProjectionCsv(
+      csv([
+        ",1000,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,55-59,FALSE,FALSE,FALSE,0.5",
+        "2007,,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,55-59,FALSE,FALSE,FALSE,0.5",
+        "2008,1000,FALSE,MAYBE,FALSE,FALSE,FALSE,FALSE,TRUE,55-59,FALSE,FALSE,FALSE,0.5",
+        "2009,1000,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,55-59,FALSE,FALSE,FALSE,0.5",
+      ]),
+    );
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.diagnostics.skippedRowCount).toBe(3);
+  });
+
+  it("ignores a leading unnamed export-index column without shifting fields", () => {
+    const withIndexHeader = `,${REQUIRED_HEADER}`;
+    const result = parseProjectionCsv(
+      [withIndexHeader, "42,2006,1000,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,55-59,FALSE,FALSE,FALSE,0.5"].join("\n"),
+    );
+
+    expect(result.rows[0]).toMatchObject({ year: 2006, totalPopulation: 1000, predictionStatus: "FALSE" });
+  });
+
+  it("rejects malformed record widths and unterminated quoted fields", () => {
+    expect(() =>
+      parseProjectionCsv(csv(["2006,1000,FALSE,TRUE"])),
+    ).toThrow(/fields on row 2/);
+    expect(() =>
+      parseProjectionCsv(`${REQUIRED_HEADER}\n2006,1000,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,"55-59`),
+    ).toThrow(/unterminated quoted field/);
+  });
+
+  it("rejects a structurally valid file with no supported outcome columns", () => {
+    const header = REQUIRED_HEADER.replace(",lfp", "");
+    const record = "2006,1000,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,55-59,FALSE,FALSE,FALSE";
+    expect(() => parseProjectionCsv([header, record].join("\n"))).toThrow(/supported outcome columns/);
+  });
+
   it("skips rows with an invalid pred value", () => {
     const result = parseProjectionCsv(
       csv([

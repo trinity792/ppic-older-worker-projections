@@ -47,6 +47,10 @@ h1 {
   line-height: 1.15;
 }
 
+.report-title {
+  max-width: none;
+}
+
 h2 {
   margin-bottom: var(--space-3);
   font-family: var(--font-heading);
@@ -65,9 +69,10 @@ h2::after {
 }
 
 .page-shell {
-  width: min(100% - 2rem, var(--page-width));
+  width: 100%;
+  max-width: var(--page-width);
   margin-inline: auto;
-  padding-block: var(--space-7);
+  padding: var(--space-5) var(--space-4);
 }
 
 .report-header {
@@ -103,9 +108,14 @@ h2::after {
   text-transform: uppercase;
 }
 
-@media (max-width: 40rem) {
+@media (min-width: 40rem) {
   .page-shell {
-    width: min(100% - 1.25rem, var(--page-width));
-    padding-block: var(--space-6);
+    padding-inline: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  .page-shell {
+    padding-inline: var(--space-7);
   }
 }

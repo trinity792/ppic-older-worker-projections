@@ -28,6 +28,10 @@ describe("exportDisplayedData", () => {
     expect(csv).toBe("");
   });
 
+  it("returns an empty string when visible comparisons have no rows", () => {
+    expect(exportDisplayedData({ series: [series({})] })).toBe("");
+  });
+
   it("never includes a suppressed comparison alongside visible ones", () => {
     const visible = series({
       actual: [{ year: 2006, predictionStatus: "FALSE", rate: 0.5, displayedValue: 0.5, totalPopulation: 30000, validWeight: 30000, status: "valid" }],

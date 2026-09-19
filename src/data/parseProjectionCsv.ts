@@ -38,6 +38,18 @@ const REQUIRED_COLUMNS = [
   "ed_collgrad",
 ] as const;
 
+const BOOLEAN_CATEGORY_COLUMNS = [
+  "latino",
+  "white",
+  "black",
+  "asian",
+  "pacis",
+  "female",
+  "ed_hsgrad",
+  "ed_somecoll",
+  "ed_collgrad",
+] as const;
+
 const OUTCOME_COLUMNS = [...new Set(OUTCOMES.flatMap((outcome) => [outcome.totalColumn, outcome.laborColumn].filter((column): column is string => column !== null)))];
 
 /**
@@ -56,8 +68,16 @@ export function parseProjectionCsv(csvText: string): ParsedProjectionData {
   if (!headerRecord) {
     throw new ProjectionCsvError("empty", "The projection dataset is empty.");
   }
-  const headers = headerRecord.map((value) => stripQuotes(value)).filter((header) => header !== "");
-  const headerSet = new Set(headers);
+  const headers = headerRecord.map((value, index) => {
+    const header = stripQuotes(value);
+    return index === 0 ? header.replace(/^\uFEFF/, "") : header;
+  });
+  const namedHeaders = headers.filter((header) => header !== "");
+  const headerSet = new Set(namedHeaders);
+
+  if (headerSet.size !== namedHeaders.length) {
+    throw new ProjectionCsvError("columns", "The projection dataset contains duplicate column names.");
+  }
 
   const missingColumns = REQUIRED_COLUMNS.filter((column) => !headerSet.has(column));
   if (missingColumns.length > 0) {
@@ -66,23 +86,48 @@ export function parseProjectionCsv(csvText: string): ParsedProjectionData {
 
   const numericOutcomeColumns = OUTCOME_COLUMNS.filter((column) => headerSet.has(column));
   const numericOutcomeColumnSet = new Set(numericOutcomeColumns);
+  const availableOutcomeKeys = OUTCOMES.filter((outcome) => {
+    if (!headerSet.has(outcome.totalColumn)) {
+      return false;
+    }
+    if (!outcome.laborColumn || outcome.fixedDenominator === "all") {
+      return true;
+    }
+    return numericOutcomeColumnSet.has(outcome.laborColumn);
+  }).map((outcome) => outcome.key);
+
+  if (availableOutcomeKeys.length === 0) {
+    throw new ProjectionCsvError("columns", "The projection dataset does not contain any supported outcome columns.");
+  }
 
   const dataRecords = records.slice(1);
   const rows: ProjectionRow[] = [];
   let skippedRowCount = 0;
 
-  for (const record of dataRecords) {
+  for (const [recordIndex, record] of dataRecords.entries()) {
+    if (record.length !== headers.length) {
+      throw new ProjectionCsvError(
+        "rows",
+        `The projection dataset has ${record.length} fields on row ${recordIndex + 2}; expected ${headers.length}.`,
+      );
+    }
+
     const fields: Record<string, string> = {};
     headers.forEach((header, index) => {
-      fields[header] = stripQuotes(record[index] ?? "");
+      if (header !== "") {
+        fields[header] = stripQuotes(record[index] ?? "");
+      }
     });
 
-    const year = Number(fields.year);
-    const totalPopulation = Number(fields.totpop);
+    const year = parseRequiredFiniteNumber(fields.year);
+    const totalPopulation = parseRequiredFiniteNumber(fields.totpop);
     const predRaw = fields.pred;
     const predictionStatus: PredictionStatus | null = predRaw === "TRUE" || predRaw === "FALSE" ? predRaw : null;
+    const hasValidCategories = BOOLEAN_CATEGORY_COLUMNS.every(
+      (column) => fields[column] === "TRUE" || fields[column] === "FALSE",
+    );
 
-    if (!Number.isFinite(year) || !Number.isFinite(totalPopulation) || predictionStatus === null) {
+    if (year === null || totalPopulation === null || predictionStatus === null || !hasValidCategories) {
       skippedRowCount += 1;
       continue;
     }
@@ -112,16 +157,6 @@ export function parseProjectionCsv(csvText: string): ParsedProjectionData {
     throw new ProjectionCsvError("rows", "No valid rows remain after parsing the projection dataset.");
   }
 
-  const availableOutcomeKeys = OUTCOMES.filter((outcome) => {
-    if (!headerSet.has(outcome.totalColumn)) {
-      return false;
-    }
-    if (!outcome.laborColumn || outcome.fixedDenominator === "all") {
-      return true;
-    }
-    return numericOutcomeColumnSet.has(outcome.laborColumn);
-  }).map((outcome) => outcome.key);
-
   return {
     rows,
     availableOutcomeKeys,
@@ -130,6 +165,14 @@ export function parseProjectionCsv(csvText: string): ParsedProjectionData {
       skippedRowCount,
     },
   };
+}
+
+function parseRequiredFiniteNumber(value: string | undefined): number | null {
+  if (value === undefined || value.trim() === "") {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function resolveRaceEthnicity(fields: Record<string, string>): string {
@@ -205,6 +248,10 @@ function parseCsvRecords(text: string): string[][] {
     }
 
     currentField += character;
+  }
+
+  if (inQuotes) {
+    throw new ProjectionCsvError("rows", "The projection dataset contains an unterminated quoted field.");
   }
 
   if (currentField !== "" || currentRecord.length > 0) {

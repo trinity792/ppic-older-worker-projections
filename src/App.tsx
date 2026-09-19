@@ -62,15 +62,15 @@ export default function App() {
     });
   }, [dataState, normalizedComparisons, comparisonsState.valueFormat]);
 
-  const downloadDisabled = series.every((entry) => entry.hidden);
+  const downloadableCsv = useMemo(() => exportDisplayedData({ series }), [series]);
+  const downloadDisabled = downloadableCsv === "";
 
   const handleDownload = useCallback(() => {
-    const csv = exportDisplayedData({ series });
-    if (csv === "") {
+    if (downloadableCsv === "") {
       return;
     }
-    downloadCsv(csv, "older-worker-projections.csv");
-  }, [series]);
+    downloadCsv(downloadableCsv, "older-worker-projections.csv");
+  }, [downloadableCsv]);
 
   const handleRetry = useCallback(() => {
     setDataState({ status: "loading" });
@@ -81,10 +81,10 @@ export default function App() {
     <main className="page-shell">
       <header className="report-header">
         <p className="eyebrow">PPIC interactive</p>
-        <h1>Older Workers in California: Projections to 2040</h1>
+        <h1 className="report-title">Older Workers in California: Projections to 2040</h1>
         <p className="report-intro">
           The projections below were developed for the PPIC report "Older Workers in California: Projections to
-          2040." Compare historical and projected outcomes for older Californians. Please contact Eric McGhee{" "}
+          2040." The interactive was created with ChatGPT 5.6 Sol &amp; Claude Opus 5. Please contact Eric McGhee{" "}
           <a href="mailto:mcghee@ppic.org">mcghee@ppic.org</a> with questions or comments.
         </p>
       </header>

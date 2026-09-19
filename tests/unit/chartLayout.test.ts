@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildLineSegments,
+  computeChartLeftMargin,
   computeXAxisTickCount,
   computeYAxisScale,
   getRenderableDisplayValues,
   getYearDomain,
   isRenderablePoint,
-  resolveLabelCollisions,
 } from "../../src/charts/chartLayout";
 import type { PreparedPoint, PreparedSeries } from "../../src/app/types";
 
@@ -102,6 +102,18 @@ describe("computeYAxisScale", () => {
     const scale = computeYAxisScale(0.4, 0.4);
     expect(Number.isFinite(scale.max)).toBe(true);
     expect(scale.ticks.every((tick) => Number.isFinite(tick))).toBe(true);
+    expect(scale.min).toBeGreaterThan(0.3);
+    expect(scale.max).toBeLessThan(0.5);
+  });
+});
+
+describe("computeChartLeftMargin", () => {
+  it("keeps the standard margin for short labels", () => {
+    expect(computeChartLeftMargin(5)).toBe(56);
+  });
+
+  it("reserves enough left margin for long raw-count tick labels", () => {
+    expect(computeChartLeftMargin(9)).toBeGreaterThan(70);
   });
 });
 
@@ -146,19 +158,5 @@ describe("computeXAxisTickCount", () => {
 
   it("caps at the configured maximum", () => {
     expect(computeXAxisTickCount(5000, 8)).toBe(8);
-  });
-});
-
-describe("resolveLabelCollisions", () => {
-  it("leaves well-separated labels untouched", () => {
-    const resolved = resolveLabelCollisions([{ id: "a", y: 0 }, { id: "b", y: 100 }], 20);
-    expect(resolved.get("a")).toBe(0);
-    expect(resolved.get("b")).toBe(100);
-  });
-
-  it("pushes overlapping labels apart while preserving order", () => {
-    const resolved = resolveLabelCollisions([{ id: "a", y: 10 }, { id: "b", y: 15 }], 20);
-    expect(resolved.get("a")).toBe(10);
-    expect(resolved.get("b")).toBe(30);
   });
 });

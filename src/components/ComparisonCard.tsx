@@ -10,6 +10,7 @@ interface ComparisonCardProps {
   comparison: ComparisonSelection;
   availableOutcomeKeys: readonly string[];
   valueFormat: ValueFormat;
+  color: string;
   canRemove: boolean;
   onChangeOutcome: (outcome: string) => void;
   onChangeFilter: (field: ComparisonFilterField, value: string) => void;
@@ -18,7 +19,7 @@ interface ComparisonCardProps {
 }
 
 const ComparisonCard = forwardRef<HTMLHeadingElement, ComparisonCardProps>(function ComparisonCard(
-  { index, comparison, availableOutcomeKeys, valueFormat, canRemove, onChangeOutcome, onChangeFilter, onChangeUseLaborForce, onRemove },
+  { index, comparison, availableOutcomeKeys, valueFormat, color, canRemove, onChangeOutcome, onChangeFilter, onChangeUseLaborForce, onRemove },
   headingRef,
 ) {
   const availableOutcomes = OUTCOMES.filter((outcome) => availableOutcomeKeys.includes(outcome.key));
@@ -31,6 +32,7 @@ const ComparisonCard = forwardRef<HTMLHeadingElement, ComparisonCardProps>(funct
     <section className="comparison-card" aria-labelledby={headingId}>
       <div className="comparison-card-header">
         <h3 id={headingId} tabIndex={-1} ref={headingRef}>
+          <span className="comparison-color-swatch" style={{ backgroundColor: color }} aria-hidden="true" />
           Comparison {index + 1}
         </h3>
         {canRemove && (

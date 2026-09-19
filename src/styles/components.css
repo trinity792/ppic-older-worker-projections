@@ -130,9 +130,19 @@
 }
 
 .comparison-card-header h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
   font-family: var(--font-heading);
   font-size: 1.05rem;
+}
+
+.comparison-color-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: 0 0 auto;
+  border-radius: 3px;
 }
 
 .comparison-card-header h3:focus-visible {
@@ -205,14 +215,7 @@
   font-size: 0.875rem;
 }
 
-.scaffold-note {
-  margin: var(--space-4) 0 0;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-/* Segmented pill group ported from web-data-visualization's GraphTabs: rounded-full chips, active chip filled with the bright data-blue and white text. */
+/* Segmented pill group ported from web-data-visualization's GraphTabs, using PPIC orange for the active view. */
 .view-toggle {
   display: inline-flex;
   gap: var(--space-1);
@@ -235,44 +238,46 @@
 }
 
 .view-toggle button[aria-pressed="true"] {
-  background: var(--color-data-blue-bright);
-  color: #ffffff;
+  background: var(--color-brand);
+  color: var(--color-text);
 }
 
 .view-toggle button:hover:not([aria-pressed="true"]):not(:disabled) {
-  background: color-mix(in srgb, var(--color-data-blue-bright) 12%, transparent);
+  background: color-mix(in srgb, var(--color-brand) 16%, transparent);
 }
 
 .chart-container {
   min-width: 0;
 }
 
-/* Centered title with an inline brand underline, after ChartContainer's heading (border-b-2 border-ppic-brand on an inline-block span) rather than the page-level h2 rule. */
-.chart-container-title {
+.chart-publication-header {
   margin-bottom: var(--space-4);
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: 600;
+}
+
+.chart-container-title {
+  max-width: none;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
   letter-spacing: normal;
+  line-height: 1.15;
 }
 
 .chart-container-title::after {
   content: none;
 }
 
-.chart-container-title span {
-  display: inline-block;
-  padding-bottom: var(--space-1);
-  border-bottom: 2px solid var(--color-brand);
-}
-
 .chart-container-body {
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chart-container-body[data-view="table"] {
   min-height: var(--chart-body-min-height);
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control-sm);
-  overflow: hidden;
 }
 
 /* Keep the data view roughly the chart view's height (the reference pins it) so toggling does not resize the card and the sidebar clamped to it. The table region already scrolls horizontally; this adds vertical scrolling with a sticky header row. */
@@ -303,7 +308,6 @@
 .chart-canvas {
   position: relative;
   height: var(--chart-height);
-  border-radius: var(--radius-control);
   overflow: hidden;
 }
 
@@ -315,17 +319,16 @@
    lib/visualization/plotlyDefaults.js (PLOTLY_FONT, PLOTLY_GRID_COLOR) and its
    Chart Anatomy "graph line" (axis) vs. "row/grid line" spec, so this chart
    reads as the same visual family as the reference's Plotly charts rather
-   than the legacy app's chart. `.chart-canvas .chart-grid-line` is
-   deliberately two classes so it outranks the plain-element `line`/`path`
-   rule below regardless of source order. */
+   than the legacy app's chart. Axis selectors are deliberately scoped to
+   visx's axis groups so they do not override each series path's own color. */
 .chart-canvas text {
   fill: var(--color-chart-text);
   font-family: var(--font-control);
   font-size: 0.75rem;
 }
 
-.chart-canvas line,
-.chart-canvas path {
+.chart-canvas .visx-axis line,
+.chart-canvas .visx-axis path {
   stroke: var(--color-chart-axis);
 }
 
@@ -337,25 +340,22 @@
   font-size: 0.9rem !important;
 }
 
-.chart-direct-label {
-  fill: var(--color-chart-text);
-  font-family: var(--font-control);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
 .series-line {
   fill: none;
   stroke-width: 2;
+}
+
+.series-hit-target {
+  cursor: crosshair;
 }
 
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
-  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
   font-family: var(--font-control);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-chart-text);
 }
 
@@ -367,9 +367,9 @@
 
 .legend-swatch {
   display: inline-block;
-  width: 0.85rem;
-  height: 0.85rem;
-  border-radius: 3px;
+  width: 1.5rem;
+  height: 0;
+  border-top: 2px solid;
 }
 
 .legend-style-note {
@@ -415,12 +415,35 @@
   border-radius: var(--radius-control);
   background: var(--color-card);
   box-shadow: var(--shadow-card);
+  transform: translateY(var(--space-3));
 }
 
-.chart-notes {
-  margin: var(--space-3) 0 0;
+.chart-tooltip[data-place-above="true"] {
+  transform: translateY(calc(-100% - var(--space-3)));
+}
+
+.chart-source-notes {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-grid);
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.chart-source-notes p {
+  margin: 0;
+}
+
+.chart-source-notes strong {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.chart-source-notes cite {
+  font-style: normal;
 }
 
 .table-scroll {

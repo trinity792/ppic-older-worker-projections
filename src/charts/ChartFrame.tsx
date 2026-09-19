@@ -10,11 +10,11 @@ interface ChartFrameProps {
 export default function ChartFrame({ children, description, legend }: ChartFrameProps) {
   return (
     <figure className="chart-frame" aria-labelledby="chart-caption">
+      {legend}
       <div className="chart-canvas">
         <ParentSize>{({ width, height }) => children({ width, height })}</ParentSize>
       </div>
-      {legend}
-      <figcaption id="chart-caption" className="scaffold-note">
+      <figcaption id="chart-caption" className="sr-only">
         {description}
       </figcaption>
     </figure>

@@ -7,10 +7,22 @@ export const CHART_MARGIN = Object.freeze({
   left: 56,
 });
 
+const Y_AXIS_CHARACTER_WIDTH = 7;
+const Y_AXIS_PADDING = 16;
+const Y_AXIS_MAX_MARGIN = 112;
+
 export interface YAxisScale {
   min: number;
   max: number;
   ticks: readonly number[];
+}
+
+/** Gives raw-count axes enough left margin for their longest formatted tick label. */
+export function computeChartLeftMargin(longestYAxisLabelLength: number): number {
+  return Math.min(
+    Y_AXIS_MAX_MARGIN,
+    Math.max(CHART_MARGIN.left, Math.ceil(longestYAxisLabelLength * Y_AXIS_CHARACTER_WIDTH + Y_AXIS_PADDING)),
+  );
 }
 
 /**
@@ -61,16 +73,16 @@ function getNiceStep(minimumStep: number): number {
  */
 export function computeYAxisScale(minValue: number, maxValue: number, tickCount = 4): YAxisScale {
   if (minValue === maxValue) {
-    const step = getNiceStep(Math.max(Math.abs(maxValue) * 0.06, 1));
-    const axisMin = Math.max(0, Math.floor(minValue / step) * step);
-    return { min: axisMin, max: axisMin + step * (tickCount - 1), ticks: tickList(axisMin, step, tickCount) };
+    const padding = maxValue === 0 ? 1 : Math.abs(maxValue) * 0.06;
+    return computePaddedYAxisScale(Math.max(0, minValue - padding), maxValue + padding, tickCount);
   }
 
   const valueRange = maxValue - minValue;
   const padding = valueRange * 0.06;
-  const targetMin = Math.max(0, minValue - padding);
-  const targetMax = maxValue + padding;
+  return computePaddedYAxisScale(Math.max(0, minValue - padding), maxValue + padding, tickCount);
+}
 
+function computePaddedYAxisScale(targetMin: number, targetMax: number, tickCount: number): YAxisScale {
   let step = getNiceStep((targetMax - targetMin) / (tickCount - 1));
   let axisMin = Math.max(0, Math.floor(targetMin / step) * step);
   let axisMax = axisMin + step * (tickCount - 1);
@@ -111,33 +123,4 @@ export function buildLineSegments(points: readonly PreparedPoint[]): LineSegment
     }
   }
   return segments;
-}
-
-export interface CollidableLabel {
-  id: string;
-  y: number;
-}
-
-/**
- * Nudges direct end labels apart along y when they would overlap, keeping
- * their relative order. A simple, testable one-pass stacking resolver:
- * sort by y, then push each label down (or the group up) just enough to
- * keep `minGap` between adjacent centers.
- */
-export function resolveLabelCollisions(labels: readonly CollidableLabel[], minGap: number): Map<string, number> {
-  const sorted = [...labels].sort((a, b) => a.y - b.y);
-  const resolvedY = sorted.map((label) => label.y);
-
-  for (let index = 1; index < resolvedY.length; index += 1) {
-    const minAllowed = resolvedY[index - 1]! + minGap;
-    if (resolvedY[index]! < minAllowed) {
-      resolvedY[index] = minAllowed;
-    }
-  }
-
-  const result = new Map<string, number>();
-  sorted.forEach((label, index) => {
-    result.set(label.id, resolvedY[index]!);
-  });
-  return result;
 }

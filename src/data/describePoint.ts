@@ -19,7 +19,7 @@ export function describePoint(point: PreparedPoint | undefined, valueFormat: Val
   }
 
   if (point.status === "suppressed") {
-    return { primaryText: "Suppressed", populationText: `Total population: ${formatPopulation(point.totalPopulation)}`, interpolated: false };
+    return { primaryText: "Suppressed", populationText: null, interpolated: false };
   }
 
   if (point.status === "missing" || point.displayedValue === null) {

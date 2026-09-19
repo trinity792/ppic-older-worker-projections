@@ -1,6 +1,6 @@
 import { FILTERS } from "../app/filters";
 import { OUTCOMES, type OutcomeDefinition } from "../app/outcomes";
-import { SERIES_COLORS } from "../app/seriesColors";
+import { getComparisonColor } from "../app/seriesColors";
 import type {
   ComparisonSelection,
   OutcomeDenominatorMode,
@@ -44,7 +44,7 @@ function emptyBucket(): Bucket {
 export function prepareComparisons(input: PrepareComparisonsInput): readonly PreparedSeries[] {
   const { rows, comparisons, valueFormat } = input;
   return comparisons.map((comparison, index) =>
-    prepareComparison(comparison, rows, valueFormat, SERIES_COLORS[index % SERIES_COLORS.length] ?? "#000000"),
+    prepareComparison(comparison, rows, valueFormat, getComparisonColor(comparisons.length, index)),
   );
 }
 
