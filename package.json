@@ -20,6 +20,7 @@
     "check:data": "python3 scripts/check_projection_data.py"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "@visx/axis": "^4.0.0",
     "@visx/grid": "^4.0.0",
     "@visx/group": "^4.0.0",
