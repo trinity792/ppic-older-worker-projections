@@ -1,5 +1,4 @@
 .section-card {
-  margin-top: var(--space-5);
   padding: var(--space-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
@@ -7,17 +6,63 @@
   box-shadow: var(--shadow-card);
 }
 
-.section-heading {
-  display: flex;
-  justify-content: space-between;
+/* Workbench layout ported from web-data-visualization's ModuleWorkbench/ModuleSidebar/ChartContainer: a control sidebar beside a chart card. Stacked in natural flow below 64rem; at 64rem and up the sidebar is absolutely positioned inside a stretched grid cell so it contributes no height of its own, is exactly as tall as the chart card, and scrolls internally when its controls run longer. */
+.workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
-  align-items: flex-start;
 }
 
-.section-heading p:not(.eyebrow) {
-  max-width: 48rem;
+.workbench-sidebar-cell {
+  position: relative;
+  min-width: 0;
+}
+
+.editor-sidebar {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-card);
+  box-shadow: var(--shadow-panel);
+}
+
+/* Sidebar section heading after the reference's SectionHeading: base-size semibold heading with a short 2px brand rule. */
+.editor-sidebar h2 {
+  margin-bottom: var(--space-2);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.editor-sidebar h2::after {
+  width: 2rem;
+  height: 2px;
+}
+
+.editor-sidebar-intro p:not(.eyebrow) {
+  margin: var(--space-3) 0 0;
   color: var(--color-text-muted);
+  font-size: 0.875rem;
   line-height: 1.5;
+}
+
+.editor-sidebar-add {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+@media (min-width: 64rem) {
+  .workbench {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .editor-sidebar {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+  }
 }
 
 /* Pill buttons ported from web-data-visualization's ButtonsShowcase ("PillButton"): fully rounded, thin border, Source Sans 3, regular weight. Outline/ghost text uses --color-brand-text rather than the raw brand hue the reference's own showcase uses, which does not clear 4.5:1 against white. */
@@ -70,7 +115,7 @@
 }
 
 .comparison-card {
-  margin: var(--space-5) 0 0;
+  margin: var(--space-4) 0 0;
   padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
@@ -198,14 +243,66 @@
   background: color-mix(in srgb, var(--color-data-blue-bright) 12%, transparent);
 }
 
+.chart-container {
+  min-width: 0;
+}
+
+/* Centered title with an inline brand underline, after ChartContainer's heading (border-b-2 border-ppic-brand on an inline-block span) rather than the page-level h2 rule. */
+.chart-container-title {
+  margin-bottom: var(--space-4);
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.chart-container-title::after {
+  content: none;
+}
+
+.chart-container-title span {
+  display: inline-block;
+  padding-bottom: var(--space-1);
+  border-bottom: 2px solid var(--color-brand);
+}
+
+.chart-container-body {
+  min-width: 0;
+  min-height: var(--chart-body-min-height);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control-sm);
+  overflow: hidden;
+}
+
+/* Keep the data view roughly the chart view's height (the reference pins it) so toggling does not resize the card and the sidebar clamped to it. The table region already scrolls horizontally; this adds vertical scrolling with a sticky header row. */
+.chart-container-body .table-scroll {
+  max-height: calc(var(--chart-body-min-height) - 2 * var(--space-3));
+  overflow: auto;
+}
+
+.chart-container-body thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-card);
+}
+
+.chart-container-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
 .chart-frame {
-  margin: var(--space-5) 0 0;
+  margin: 0;
 }
 
 .chart-canvas {
   position: relative;
   height: var(--chart-height);
-  border: 1px solid var(--color-grid);
   border-radius: var(--radius-control);
   overflow: hidden;
 }
@@ -299,9 +396,9 @@
 
 .results-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
-  margin-top: var(--space-3);
 }
 
 .cell-meta {
@@ -321,16 +418,9 @@
 }
 
 .chart-notes {
-  margin-top: var(--space-4);
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  background: var(--color-grid);
+  margin: var(--space-3) 0 0;
   color: var(--color-text-muted);
   font-size: 0.8rem;
-}
-
-.chart-notes p {
-  margin: 0;
 }
 
 .table-scroll {
@@ -360,12 +450,9 @@ td {
     padding: var(--space-4);
   }
 
-  .section-heading {
-    flex-direction: column;
-  }
-
-  .section-heading > .button,
-  .view-toggle {
+  .view-toggle,
+  .results-actions,
+  .results-actions .button {
     width: 100%;
   }
 

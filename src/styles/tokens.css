@@ -36,6 +36,12 @@
   --radius-card: 1rem;
   --radius-pill: 999px;
   --shadow-card: 0 4px 4px rgb(0 0 0 / 6%);
+  /* Workbench panel (web-data-visualization's ModuleSidebar: rounded-xl + shadow-xs) */
+  --radius-panel: 0.75rem;
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 5%);
   --page-width: 75rem;
+  /* Sidebar rail width and chart-body floor from ModuleWorkbench (DEFAULT_SIDEBAR_WIDTH 360px) and ChartContainer (min-h-130). The desktop breakpoint is Tailwind's `lg` (64rem), repeated literally in media queries because custom properties cannot be used there. */
+  --sidebar-width: 22.5rem;
+  --chart-body-min-height: 32.5rem;
   --chart-height: 23.75rem;
 }

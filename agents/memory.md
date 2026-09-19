@@ -42,7 +42,7 @@ link them here.
 - [`2026-09-18-data-layout.md`](memories/2026-09-18-data-layout.md) — confirmed raw/cleaned directories, cleaning boundary, and verified dataset characteristics.
 - [`2026-09-18-legacy-parity-fixtures.md`](memories/2026-09-18-legacy-parity-fixtures.md) — how the workstream 1 `v0/` parity fixtures were captured and what they found.
 - [`2026-09-18-implementation-workstreams.md`](memories/2026-09-18-implementation-workstreams.md) — CSV contract resolution and discoveries from implementing workstreams 3-9.
-- [`2026-09-18-design-alignment.md`](memories/2026-09-18-design-alignment.md) — exact web-data-visualization sources for typography/UI/chart values, and two accessibility deviations from them.
+- [`2026-09-18-design-alignment.md`](memories/2026-09-18-design-alignment.md) — exact web-data-visualization sources for typography/UI/chart values, two accessibility deviations from them, and the sidebar-plus-chart workbench layout ported from its topic editor (`ModuleWorkbench`).
 
 ## Maintenance
 

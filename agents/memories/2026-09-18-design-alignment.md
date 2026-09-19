@@ -27,3 +27,14 @@ The user asked to match this app's typography/UI, then separately asked the char
 ## Bug fixed along the way
 
 `.chart-canvas line, .chart-canvas path { stroke: ... }` (a class+element selector) was unintentionally beating `.chart-grid-line { stroke: ... }` (a single class) in CSS specificity, so grid rows were silently rendering in the axis color instead of the lighter grid color regardless of source order. Fixed by making the grid rule `.chart-canvas .chart-grid-line` (two classes), which now reliably outranks it.
+
+## Page layout: the reference's topic-editor workbench
+
+The user then asked for the comparison settings to move into a sidebar with the same layout as a topic editor in the reference, which is `components/chart-builder/workbench/ModuleWorkbench.js` (the `/[module]` route). Ported into `src/App.tsx` (`.workbench` grid), `src/components/ComparisonEditor.tsx` (now an `<aside class="editor-sidebar">`), `src/components/ResultsPanel.tsx` (`.chart-container`), and `src/styles/components.css`/`tokens.css`:
+
+- **Two columns at `lg` (64rem)**: `--sidebar-width` (22.5rem, the reference's `DEFAULT_SIDEBAR_WIDTH`) beside `minmax(0, 1fr)`, 1rem gap; stacked in natural flow below that.
+- **Sidebar height clamp** (`ModuleSidebar.js`): on desktop the aside is `position: absolute; inset: 0; overflow-y: auto` inside a `position: relative` grid cell, so it contributes no height, is exactly as tall as the results card, and scrolls internally. This relies on the grid's default `align-items: stretch`; do not set `align-items: start` on `.workbench`.
+- **Chart container** (`ChartContainer.js`/`ChartContainerFooter.js`): centered title with an inline-block brand underline (`.chart-container-title span`), a bordered body with a `--chart-body-min-height` floor (32.5rem, their `min-h-130`), then a footer row with the Figure/Data toggle left and Download CSV right. The data view caps `.table-scroll` at the body height with a sticky header row, mirroring the reference's pinned body height so toggling does not resize the card (and the sidebar clamped to it).
+- The report header stays above the workbench; the reference's navbar/workspace bar have no analog here.
+
+Deliberately not ported: the drag-to-resize handle with `localStorage` persistence (`resizableSidebar.js`) and the Radix accordion collapse for sidebar sections. Both add dependencies or persistence for little value at this size; revisit only if asked.

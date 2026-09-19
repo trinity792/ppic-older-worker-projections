@@ -93,13 +93,16 @@ export default function App() {
       {dataState.status === "error" && <DataStatus status="error" message={dataState.message} onRetry={handleRetry} />}
 
       {dataState.status === "ready" && (
-        <>
-          <ComparisonEditor
-            comparisons={normalizedComparisons}
-            availableOutcomeKeys={availableOutcomeKeys}
-            valueFormat={comparisonsState.valueFormat}
-            dispatch={dispatch}
-          />
+        /* Sidebar-plus-chart workbench, after web-data-visualization's ModuleWorkbench: on desktop the row's height comes from the results card alone, and the sidebar is absolutely positioned inside its cell so a long control list scrolls within that height instead of stretching the page. The cell must stretch (grid default) for that to work. */
+        <div className="workbench">
+          <div className="workbench-sidebar-cell">
+            <ComparisonEditor
+              comparisons={normalizedComparisons}
+              availableOutcomeKeys={availableOutcomeKeys}
+              valueFormat={comparisonsState.valueFormat}
+              dispatch={dispatch}
+            />
+          </div>
           <ResultsPanel
             series={series}
             resultsView={comparisonsState.resultsView}
@@ -107,7 +110,7 @@ export default function App() {
             onDownload={handleDownload}
             downloadDisabled={downloadDisabled}
           />
-        </>
+        </div>
       )}
     </main>
   );

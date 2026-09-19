@@ -17,30 +17,30 @@ export default function ResultsPanel({ series, resultsView, onChangeView, onDown
   const summary = buildSelectionSummary(series);
 
   return (
-    <section className="section-card" aria-labelledby="results-heading">
-      <div className="section-heading">
-        <div>
-          <p className="eyebrow">Figure</p>
-          <h2 id="results-heading">Historical data and projections</h2>
-        </div>
-        <ViewToggle resultsView={resultsView} onChange={onChangeView} />
-      </div>
+    <section className="section-card chart-container" aria-labelledby="results-heading">
+      <h2 id="results-heading" className="chart-container-title">
+        <span>Historical data and projections</span>
+      </h2>
 
       <span className="sr-only" role="status" aria-live="polite">
         {summary}
       </span>
 
-      {resultsView === "chart" ? <ProjectionLineChart series={series} /> : <ResultsTable series={series} />}
+      <div className="chart-container-body" data-view={resultsView}>
+        {resultsView === "chart" ? <ProjectionLineChart series={series} /> : <ResultsTable series={series} />}
+      </div>
 
-      <footer className="chart-notes">
-        <p>Comparisons are hidden when total population falls below 20,000 in any represented year.</p>
+      <p className="chart-notes">Comparisons are hidden when total population falls below 20,000 in any represented year.</p>
+
+      <div className="chart-container-footer">
+        <ViewToggle resultsView={resultsView} onChange={onChangeView} />
         <div className="results-actions">
+          {downloadDisabled && <span className="cell-meta">No visible comparison can be downloaded right now.</span>}
           <button type="button" className="button secondary" onClick={onDownload} disabled={downloadDisabled}>
             Download CSV
           </button>
-          {downloadDisabled && <span className="cell-meta">No visible comparison can be downloaded right now.</span>}
         </div>
-      </footer>
+      </div>
     </section>
   );
 }

@@ -38,20 +38,15 @@ export default function ComparisonEditor({ comparisons, availableOutcomeKeys, va
   const showPovertyNote = comparisons.some((comparison) => POVERTY_OUTCOME_KEYS.has(comparison.outcome));
 
   return (
-    <section className="section-card" aria-labelledby="comparisons-heading">
-      <div className="section-heading">
-        <div>
-          <p className="eyebrow">Choose groups</p>
-          <h2 id="comparisons-heading">Comparisons</h2>
-          <p>
-            Each comparison defines one trend line. Choose an outcome, use the denominator options to switch between
-            shares of all adults and shares of the labor force when available, add any demographic filters you want,
-            then use "Add a comparison" to add another.
-          </p>
-        </div>
-        <button type="button" className="button button-primary" ref={addButtonRef} onClick={() => dispatch({ type: "add" })}>
-          Add a comparison
-        </button>
+    <aside className="editor-sidebar" aria-labelledby="comparisons-heading">
+      <div className="editor-sidebar-intro">
+        <p className="eyebrow">Choose groups</p>
+        <h2 id="comparisons-heading">Comparisons</h2>
+        <p>
+          Each comparison defines one trend line. Choose an outcome, use the denominator options to switch between
+          shares of all adults and shares of the labor force when available, add any demographic filters you want,
+          then use "Add a comparison" to add another.
+        </p>
       </div>
 
       <fieldset className="value-format-control">
@@ -98,6 +93,15 @@ export default function ComparisonEditor({ comparisons, availableOutcomeKeys, va
         />
       ))}
 
+      <button
+        type="button"
+        className="button button-primary editor-sidebar-add"
+        ref={addButtonRef}
+        onClick={() => dispatch({ type: "add" })}
+      >
+        Add a comparison
+      </button>
+
       {showPovertyNote && (
         <p className="outcome-note">
           * From the{" "}
@@ -107,6 +111,6 @@ export default function ComparisonEditor({ comparisons, availableOutcomeKeys, va
           .
         </p>
       )}
-    </section>
+    </aside>
   );
 }
