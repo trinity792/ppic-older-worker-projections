@@ -1,0 +1,111 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color: var(--color-text);
+  background: var(--color-surface);
+  font-family: var(--font-body);
+}
+
+body {
+  min-width: 20rem;
+  margin: 0;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-focus) 45%, transparent);
+  outline-offset: 2px;
+}
+
+button:disabled,
+select:disabled,
+fieldset:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+/* Type scale ported from web-data-visualization's TypographyShowcase (its canonical UI-kit specimen): display headline 34px/1.15 serif, section heading 28px Source Sans with 0.06em tracking, eyebrow 12px Inter 600 with 0.22em tracking. */
+h1 {
+  max-width: 20ch;
+  margin-bottom: var(--space-4);
+  font-family: var(--font-editorial);
+  font-size: clamp(1.85rem, 4vw, 2.125rem);
+  line-height: 1.15;
+}
+
+h2 {
+  margin-bottom: var(--space-3);
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  letter-spacing: 0.06em;
+}
+
+h2::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 3px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand);
+}
+
+.page-shell {
+  width: min(100% - 2rem, var(--page-width));
+  margin-inline: auto;
+  padding-block: var(--space-7);
+}
+
+.report-header {
+  max-width: 52rem;
+  margin-bottom: var(--space-6);
+}
+
+.report-intro {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.625;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--color-brand-text);
+  font-family: var(--font-control);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 40rem) {
+  .page-shell {
+    width: min(100% - 1.25rem, var(--page-width));
+    padding-block: var(--space-6);
+  }
+}
